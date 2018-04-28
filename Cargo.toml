@@ -1,0 +1,14 @@
+[package]
+name = "auto-steamgifts"
+version = "0.1.0"
+authors = ["Jokler <jokler.contact@gmail.com>"]
+
+[dependencies]
+toml = "0.4.6"
+serde = "1.0.43"
+serde_derive = "1.0.43"
+reqwest = "0.8.5"
+select = "0.4.2"
+structopt = "0.2.8"
+open = "1.2.1"
+failure = "0.1.1"
