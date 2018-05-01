@@ -2,6 +2,8 @@ use config::Config;
 use EnterKind;
 use scrape::{Giveaway, Scraper};
 
+use std::time::Duration;
+use std::thread::sleep;
 use std::collections::HashMap;
 use reqwest::{Client, StatusCode, header::{Cookie, Headers}};
 use open;
@@ -10,7 +12,9 @@ use Result;
 
 pub fn enter_giveaways(kind: EnterKind, config: &Config) -> Result<()> {
     let scraper = Scraper::new();
+    let sleep_time = Duration::from_millis(config.request_sleep);
 
+    let mut is_first = true;
     match kind {
         EnterKind::Auto { force } => {
             if !force {
@@ -22,6 +26,7 @@ pub fn enter_giveaways(kind: EnterKind, config: &Config) -> Result<()> {
             if config.xsrf_token.is_empty() {
                 bail!("No token set");
             }
+
             let client = Client::new();
 
             let mut headers = Headers::new();
@@ -48,6 +53,11 @@ pub fn enter_giveaways(kind: EnterKind, config: &Config) -> Result<()> {
                 if response.status() == StatusCode::Ok {
                     println!("Entered giveaway for {}", name);
                 }
+
+                if !is_first {
+                    sleep(sleep_time);
+                }
+                is_first = false;
             }
         }
         EnterKind::Open => for Giveaway { id, url_name, .. } in scraper {
@@ -58,8 +68,13 @@ pub fn enter_giveaways(kind: EnterKind, config: &Config) -> Result<()> {
                 "https://www.steamgifts.com/giveaway/{}/{}",
                 id, url_name
             ))?;
+
+            if !is_first {
+                sleep(sleep_time);
+            }
+            is_first = false;
         },
     }
-    
+
     Ok(())
 }

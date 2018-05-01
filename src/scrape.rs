@@ -56,12 +56,20 @@ impl Scraper {
 
         self.giveaways.clear();
         for tag in document.find(Class("giveaway__heading__name")) {
-            let mut split = tag.attr("href").ok_or(format_err!("URL not found"))?.split("/");
+            let mut split = tag.attr("href")
+                .ok_or(format_err!("URL not found"))?
+                .split("/");
 
             self.giveaways.push(Giveaway {
-                id: split.nth(2).ok_or(format_err!("Unexpected URL found"))?.to_string(),
+                id: split
+                    .nth(2)
+                    .ok_or(format_err!("Unexpected URL found"))?
+                    .to_string(),
                 name: tag.text(),
-                url_name: split.next().ok_or(format_err!("Unexpected URL found"))?.to_string(),
+                url_name: split
+                    .next()
+                    .ok_or(format_err!("Unexpected URL found"))?
+                    .to_string(),
             });
         }
 

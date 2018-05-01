@@ -1,9 +1,9 @@
 #[macro_use]
+extern crate failure;
+#[macro_use]
 extern crate serde_derive;
 #[macro_use]
 extern crate structopt;
-#[macro_use]
-extern crate failure;
 
 extern crate open;
 extern crate reqwest;
@@ -32,7 +32,7 @@ pub struct CliArgs {
                 parse(from_os_str))]
     /// Use a custom config file path
     config: PathBuf,
-    #[structopt(flatten)]
+    #[structopt(subcommand)]
     sub: SubCli,
 }
 
@@ -48,12 +48,11 @@ pub enum SubCli {
     #[structopt(name = "add")]
     /// Adds games to the config interactively
     Add,
-    #[structopt(name = "enter",
-                raw(setting = "structopt::clap::AppSettings::SubcommandRequiredElseHelp"))]
+    #[structopt(name = "enter")]
     /// Provides fast ways to enters giveaways
     Enter {
-        #[structopt(flatten)]
-        args: EnterKind,
+        #[structopt(subcommand)]
+        args: Option<EnterKind>,
     },
 }
 
@@ -84,6 +83,10 @@ pub struct ConfigArgs {
     #[structopt(short = "t", long = "token")]
     /// Set xsrf_token from the webpage
     xsrf_token: Option<String>,
+
+    #[structopt(short = "r", long = "request-sleep")]
+    /// Set the sleep time between requests in milliseconds
+    request_sleep: Option<u64>,
 }
 
 fn main() {
@@ -109,12 +112,12 @@ fn run() -> Result<()> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let mut config: Config = toml::from_str(&contents).unwrap_or(Config::default());
+    let mut config: Config = toml::from_str(&contents)?;
 
     match opt.sub {
         SubCli::Config { args } => set_config(args, &mut config, &mut file)?,
         SubCli::Add => add_games(&mut config, &mut file)?,
-        SubCli::Enter { args } => enter_giveaways(args, &config)?,
+        SubCli::Enter { args } => enter_giveaways(args.unwrap_or(EnterKind::Open), &config)?,
     };
 
     Ok(())
