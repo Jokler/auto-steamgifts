@@ -32,6 +32,7 @@ pub struct CliArgs {
                 parse(from_os_str))]
     /// Use a custom config file path
     config: PathBuf,
+
     #[structopt(subcommand)]
     sub: SubCli,
 }
@@ -45,9 +46,11 @@ pub enum SubCli {
         #[structopt(flatten)]
         args: ConfigArgs,
     },
+
     #[structopt(name = "add")]
     /// Adds games to the config interactively
     Add,
+
     #[structopt(name = "enter")]
     /// Provides fast ways to enters giveaways
     Enter {
@@ -65,6 +68,7 @@ pub enum EnterKind {
         #[structopt(long = "force")]
         force: bool,
     },
+
     #[structopt(name = "open")]
     /// This opens all whitelisted giveaways in your browser
     Open,

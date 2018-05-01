@@ -31,7 +31,10 @@ pub fn add_games(config: &mut Config, file: &mut File) -> Result<()> {
                 config.blacklist.push(url_name);
                 config.write_to_file(file)?;
             } else if input.starts_with('g') || input.starts_with('G') {
-                if let Err(e) = open::that(format!("https://www.google.com/search?q={} {}", name, "game")) {
+                if let Err(e) = open::that(format!(
+                    "https://www.google.com/search?q={} {}",
+                    name, "game"
+                )) {
                     eprintln!("{}", e);
                 }
                 continue;
